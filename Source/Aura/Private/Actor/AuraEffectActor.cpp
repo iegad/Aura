@@ -27,6 +27,8 @@ AAuraEffectActor::OnBeginOverlap(UPrimitiveComponent* OverplappedComponent, AAct
 	auto* auraAttributeSet = Cast<UAuraAttributeSet>(ascInterface->GetAbilitySystemComponent()->GetAttributeSet(UAuraAttributeSet::StaticClass()));
 	auto* todo = const_cast<UAuraAttributeSet*>(auraAttributeSet);
 	todo->SetHealth(auraAttributeSet->GetHealth() + 25.f);
+	todo->SetMana(auraAttributeSet->GetMana() - 25.f);
+	Destroy();
 }
 
 void

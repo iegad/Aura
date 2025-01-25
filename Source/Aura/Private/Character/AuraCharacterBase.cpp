@@ -1,13 +1,13 @@
 #include "Character/AuraCharacterBase.h"
 
-// Sets default values
+
 AAuraCharacterBase::AAuraCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	this->Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
-	this->Weapon->SetupAttachment(this->GetMesh(), FName(TEXT("WeaponHandSocket")));
-	this->Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(this->GetMesh(), FName(TEXT("WeaponHandSocket")));
+	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 UAbilitySystemComponent* 
