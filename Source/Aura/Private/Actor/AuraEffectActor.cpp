@@ -1,45 +1,95 @@
 #include "Actor/AuraEffectActor.h"
-#include "AbilitySystemInterface.h"
-#include "AbilitySystem/AuraAttributeSet.h"
-#include "Components/SphereComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 
 
 AAuraEffectActor::AAuraEffectActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	SetRootComponent(Mesh);
-
-	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
-	Sphere->SetupAttachment(GetRootComponent());
-}
-
-void 
-AAuraEffectActor::OnBeginOverlap(UPrimitiveComponent* OverplappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherObdyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	// TODO: 暂时先使用 const_cast 来修改常指针对象的值
-	auto* ascInterface = Cast<IAbilitySystemInterface>(OtherActor);
-	if (!ascInterface) {
-		return;
-	}
-
-	auto* auraAttributeSet = Cast<UAuraAttributeSet>(ascInterface->GetAbilitySystemComponent()->GetAttributeSet(UAuraAttributeSet::StaticClass()));
-	auto* todo = const_cast<UAuraAttributeSet*>(auraAttributeSet);
-	todo->SetHealth(auraAttributeSet->GetHealth() + 25.f);
-	todo->SetMana(auraAttributeSet->GetMana() - 25.f);
-	Destroy();
-}
-
-void
-AAuraEffectActor::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
+	CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
 }
 
 void 
 AAuraEffectActor::BeginPlay()
 {
 	Super::BeginPlay();
-	Sphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlap);
-	Sphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnEndOverlap);
+}
+
+void 
+AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+	auto* targetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (!targetASC) {
+		return;
+	}
+
+	
+
+	check(GameplayEffectClass);
+
+	auto effectContextHandle = targetASC->MakeEffectContext();
+	effectContextHandle.AddSourceObject(this);
+
+	// GameplayEffectSpec (GESpec) 可以认为是 GameplayEffects 的实例化
+	// UAbilitySystemComponent::MakeOutgoingSpec() 专门用于从 GameplayEffects 创建 GameplayEffectSpecs
+	// 在应用一个GameplayEffect时, 会先从GameplayEffect中创建一个GameplayEffectSpec出来, 然后实际上是把GameplayEffectSpec应用给目标
+	const auto effectSpecHandle = targetASC->MakeOutgoingSpec(GameplayEffectClass, 1.f, effectContextHandle);
+	const auto activeEffectHandle = targetASC->ApplyGameplayEffectSpecToSelf(*effectSpecHandle.Data.Get());
+
+	const bool bIsInfinite = effectSpecHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite;
+	if (bIsInfinite && InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap) {
+		ActiveEffectHandles.Add(activeEffectHandle, targetASC);
+	}
+}
+
+void
+AAuraEffectActor::OnBeginOverlap(AActor* TargetActor)
+{
+	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnBeginOverlap) {
+		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
+	}
+
+	if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnBeginOverlap) {
+		ApplyEffectToTarget(TargetActor, DurationGameplayEffectClass);
+	}
+
+	if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnBeginOverlap) {
+		ApplyEffectToTarget(TargetActor, InfiniteGameplayEffectClass);
+	}
+}
+
+void
+AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
+{
+	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap) {
+		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
+	}
+
+	if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap) {
+		ApplyEffectToTarget(TargetActor, DurationGameplayEffectClass);
+	}
+
+	if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap) {
+		ApplyEffectToTarget(TargetActor, InfiniteGameplayEffectClass);
+	}
+
+	if (InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap) {
+		auto targetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+		if (!IsValid(TargetActor)) {
+			return;
+		}
+
+		TArray<FActiveGameplayEffectHandle> handlesToRemove;
+		for (auto handlePair : ActiveEffectHandles) {
+			if (targetASC == handlePair.Value) {
+				targetASC->RemoveActiveGameplayEffect(handlePair.Key, 1);
+				handlesToRemove.Add(handlePair.Key);
+			}
+		}
+
+		for (auto& handle : handlesToRemove) {
+			ActiveEffectHandles.FindAndRemoveChecked(handle);
+		}
+	}
 }

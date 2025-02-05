@@ -26,6 +26,7 @@ AAuraCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	// 初始化 AbilityActorInfo 服务端
+	UE_LOG(LogTemp, Warning, TEXT("Call in PossessedBy"));
 	InitAbilityActorInfo();
 }
 
@@ -35,6 +36,7 @@ AAuraCharacter::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	// 初始化 AbilityActorInfo 客户端
+	UE_LOG(LogTemp, Warning, TEXT("Call in OnRep_PlayerState"));
 	InitAbilityActorInfo();
 }
 
@@ -44,7 +46,10 @@ AAuraCharacter::InitAbilityActorInfo()
 	auto* auraPlayerState = GetPlayerState<AAuraPlayerState>();
 	check(auraPlayerState);
 
-	auraPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(auraPlayerState, this);
+	auto* auraAbilitySystemComp = Cast<UAuraAbilitySystemComponent>(auraPlayerState->GetAbilitySystemComponent());
+	auraAbilitySystemComp->InitAbilityActorInfo(auraPlayerState, this);
+	auraAbilitySystemComp->AbilityActorInfoSet();
+
 	AbilitySystemComponent = auraPlayerState->GetAbilitySystemComponent();
 	AttributeSet = auraPlayerState->GetAttributeSet();
 

@@ -20,6 +20,8 @@ public:
 	TObjectPtr<UObject> WidgetController;
 
 protected:
+
+	// 蓝图事件定义
 	UFUNCTION(BlueprintImplementableEvent)
 	void WidgetControllerSet();
 };

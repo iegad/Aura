@@ -11,6 +11,41 @@
  GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
  GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 
+
+USTRUCT()
+struct FEffectProperties 
+{
+	GENERATED_BODY()
+
+	FEffectProperties() {}
+
+	FGameplayEffectContextHandle EffectContextHandle;
+
+	UPROPERTY()
+	UAbilitySystemComponent* SourceASC{ nullptr };
+
+	UPROPERTY()
+	AActor* SourceAvatarActor{ nullptr };
+
+	UPROPERTY()
+	AController* SourceController{ nullptr };
+
+	UPROPERTY()
+	ACharacter* SourceCharacter{ nullptr };
+
+	UPROPERTY()
+	UAbilitySystemComponent* TargetASC{ nullptr };
+
+	UPROPERTY()
+	AActor* TargetAvatarActor{ nullptr };
+
+	UPROPERTY()
+	AController* TargetController{ nullptr };
+
+	UPROPERTY()
+	ACharacter* TargetCharacter{ nullptr };
+};
+
 /**
  * 
  */
@@ -22,9 +57,13 @@ class AURA_API UAuraAttributeSet : public UAttributeSet
 public:
 	UAuraAttributeSet();
 
-	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const;
+	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const override;
 
-	// 生命值
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
+	// ------------------------------------ 生命值 ------------------------------------
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Health, Category = "Vital Attributes")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Health);
@@ -39,7 +78,7 @@ public:
 	UFUNCTION()
 	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const;
 
-	// 魔法值
+	// ------------------------------------ 魔法值 ------------------------------------
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Mana, Category = "Vital Attributes")
 	FGameplayAttributeData Mana;
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Mana);
@@ -53,4 +92,7 @@ public:
 
 	UFUNCTION()
 	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const;
+
+private:
+	void SetEffectProperties(const struct FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 };
