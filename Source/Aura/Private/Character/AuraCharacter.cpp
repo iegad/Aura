@@ -7,11 +7,11 @@
 
 AAuraCharacter::AAuraCharacter()
 {
-	UCharacterMovementComponent* characterMovement = GetCharacterMovement();
+	auto* characterMovement = GetCharacterMovement();
 	check(characterMovement);
 
-	characterMovement->bOrientRotationToMovement = true;
-	characterMovement->RotationRate = FRotator(0.f, 400.f, 0.f);
+	characterMovement->bOrientRotationToMovement = true;			// è¿åŠ¨è½¬å‘ç§»åŠ¨æ–¹å‘
+	characterMovement->RotationRate = FRotator(0.f, 400.f, 0.f);	// Yawè½´æ—‹è½¬é€Ÿåº¦
 	characterMovement->bConstrainToPlane = true;
 	characterMovement->bSnapToPlaneAtStart = true;
 
@@ -25,7 +25,7 @@ AAuraCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	// ³õÊ¼»¯ AbilityActorInfo ·þÎñ¶Ë
+	// åˆå§‹åŒ– AbilityActorInfo æœåŠ¡ç«¯
 	UE_LOG(LogTemp, Warning, TEXT("Call in PossessedBy"));
 	InitAbilityActorInfo();
 }
@@ -35,9 +35,17 @@ AAuraCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	// ³õÊ¼»¯ AbilityActorInfo ¿Í»§¶Ë
+	// åˆå§‹åŒ– AbilityActorInfo å®¢æˆ·ç«¯
 	UE_LOG(LogTemp, Warning, TEXT("Call in OnRep_PlayerState"));
 	InitAbilityActorInfo();
+}
+
+void 
+AAuraCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("Call in BeginPlay"));
 }
 
 void 
@@ -50,7 +58,7 @@ AAuraCharacter::InitAbilityActorInfo()
 	auraAbilitySystemComp->InitAbilityActorInfo(auraPlayerState, this);
 	auraAbilitySystemComp->AbilityActorInfoSet();
 
-	AbilitySystemComponent = auraPlayerState->GetAbilitySystemComponent();
+	AbilitySystemComponent = auraAbilitySystemComp;
 	AttributeSet = auraPlayerState->GetAttributeSet();
 
 	auto* auraPlayerController = Cast<AAuraPlayerController>(GetController());

@@ -22,16 +22,23 @@ AAuraPlayerController::BeginPlay()
 	Super::BeginPlay();
 	check(AuraContext);
 
-	UEnhancedInputLocalPlayerSubsystem* subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	auto* subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (subsystem) {
 		subsystem->AddMappingContext(AuraContext, 0);
 	}
 
+	// æ˜¾ç¤ºé¼ æ ‡
 	bShowMouseCursor = true;
+
+	// é»˜è®¤é¼ æ ‡æ ·å¼
 	DefaultMouseCursor = EMouseCursor::Default;
 
 	FInputModeGameAndUI inputModeData;
+
+	// è®¾ç½®è§†çª—çš„é¼ æ ‡é”å®šè¡Œä¸º
 	inputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+	// æ˜¯å¦åœ¨é¼ æ ‡æŒ‰ä¸‹å¯¼è‡´çš„ä¸´æ—¶é¼ æ ‡æ•è·æœŸé—´éšè—å…‰æ ‡
 	inputModeData.SetHideCursorDuringCapture(false);
 	SetInputMode(inputModeData);
 }
@@ -40,7 +47,7 @@ void
 AAuraPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
-	UEnhancedInputComponent* enhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
+	auto* enhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 	enhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ThisClass::Move);
 }
 
@@ -73,17 +80,17 @@ AAuraPlayerController::CursorTrace()
 	LastActor = ThisActor;
 	ThisActor = Cast<IEnemyInterface>(cursorHit.GetActor());
 
-	// Êó±êµÄÉäÏß×·×Ù, »á³öÏÖ¶àÖÖÇé¿ö:
+	// é¼ æ ‡çš„å°„çº¿è¿½è¸ª, ä¼šå‡ºç°å¤šç§æƒ…å†µ:
 	//  1, LastActor == NULL && ThisActor == NULL
-	//		- Ê²Ã´¶¼²»×÷
+	//		- ä»€ä¹ˆéƒ½ä¸ä½œ
 	//  2, LastActor == NULL && ThisActor != NULL
-	//		- ThisActor¸ßÁÁ
+	//		- ThisActoré«˜äº®
 	//  3, LastActor != NULL && ThisActor == NULL
-	//		- LastActor È¡Ïû¸ßÁÁ
+	//		- LastActor å–æ¶ˆé«˜äº®
 	//  4, LastActor != NULL && ThisActor != NULL && ThisActor != LastActor
-	//		- ThisActor ¸ßÁÁ, LastActor È¡Ïû¸ßÁÁ
+	//		- ThisActor é«˜äº®, LastActor å–æ¶ˆé«˜äº®
 	//	4, LastActor != NULL && ThisActor != NULL && ThisActor == LastActor
-	//		- Ê²Ã´¶¼²»×÷
+	//		- ä»€ä¹ˆéƒ½ä¸ä½œ
 
 	if (!LastActor) {
 		if (!ThisActor) {
