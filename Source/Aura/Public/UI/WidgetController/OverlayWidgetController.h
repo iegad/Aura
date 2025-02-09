@@ -41,7 +41,10 @@ class AURA_API UOverlayWidgetController : public UAuraWidgetController
 	GENERATED_BODY()
 
 public:
+	// 初始化 AttributeSet 属性值
 	virtual void BroadcastInitialValues() override;
+
+	// 绑定 AttributeSet 属性回调
 	virtual void BindCallbacksToDependencies() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")

@@ -21,7 +21,7 @@ public:
 
 protected:
 
-	// 蓝图事件定义
+	// 钃濆浘浜嬩欢瀹氫箟
 	UFUNCTION(BlueprintImplementableEvent)
 	void WidgetControllerSet();
 };

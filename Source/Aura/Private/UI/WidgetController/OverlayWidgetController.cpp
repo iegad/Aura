@@ -19,23 +19,17 @@ UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const auto* auraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 
-	auto& healthDelegate = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(auraAttributeSet->GetHealthAttribute());
-	healthDelegate.AddUObject(this, &ThisClass::HealthChanged);
-
-	auto& maxHealthDelegate = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(auraAttributeSet->GetMaxHealthAttribute());
-	maxHealthDelegate.AddUObject(this, &ThisClass::MaxHealthChanged);
-
-	auto& manaDelegate = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(auraAttributeSet->GetManaAttribute());
-	manaDelegate.AddUObject(this, &ThisClass::ManaChanged);
-
-	auto& maxManaDelegate = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(auraAttributeSet->GetMaxManaAttribute());
-	maxManaDelegate.AddUObject(this, &ThisClass::MaxManaChanged);
+	// 绑定属性变化事件
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(auraAttributeSet->GetHealthAttribute()).AddUObject(this, &ThisClass::HealthChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(auraAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &ThisClass::MaxHealthChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(auraAttributeSet->GetManaAttribute()).AddUObject(this, &ThisClass::ManaChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(auraAttributeSet->GetMaxManaAttribute()).AddUObject(this, &ThisClass::MaxManaChanged);
 
 	auto* auraAbilitySystemComp = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent);
 	auraAbilitySystemComp->EffectAssetTags.AddLambda(
 		[](const FGameplayTagContainer& AssetTags) {
 			for (auto& tag : AssetTags) {
-				const FString msg = FString::Printf(TEXT("GE Tag: %s"), *tag.ToString());
+				const FString&& msg = FString::Printf(TEXT("GE Tag: %s"), *tag.ToString());
 				GEngine->AddOnScreenDebugMessage(1, 8.f, FColor::Blue, msg);
 			}
 		}
