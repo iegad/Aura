@@ -66,5 +66,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	EEffectRemovalPolicy InfiniteEffectRemovalPolicy{ EEffectRemovalPolicy::DoNotRemove };
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	float ActorLevel{ 1.f };
+
 	TMap<FActiveGameplayEffectHandle, class UAbilitySystemComponent*> ActiveEffectHandles;
 };

@@ -1,12 +1,12 @@
 #include "Actor/AuraEffectActor.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
 
 
 AAuraEffectActor::AAuraEffectActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
 	CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
 }
 
@@ -19,26 +19,24 @@ AAuraEffectActor::BeginPlay()
 void 
 AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
-	auto* targetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	auto* targetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
 	if (!targetASC) {
 		return;
 	}
-
-	
 
 	check(GameplayEffectClass);
 
 	auto effectContextHandle = targetASC->MakeEffectContext();
 	effectContextHandle.AddSourceObject(this);
 
-	// GameplayEffectSpec (GESpec) ¿ÉÒÔÈÏÎªÊÇ GameplayEffects µÄÊµÀý»¯
-	// UAbilitySystemComponent::MakeOutgoingSpec() ×¨ÃÅÓÃÓÚ´Ó GameplayEffects ´´½¨ GameplayEffectSpecs
-	// ÔÚÓ¦ÓÃÒ»¸öGameplayEffectÊ±, »áÏÈ´ÓGameplayEffectÖÐ´´½¨Ò»¸öGameplayEffectSpec³öÀ´, È»ºóÊµ¼ÊÉÏÊÇ°ÑGameplayEffectSpecÓ¦ÓÃ¸øÄ¿±ê
-	const auto effectSpecHandle = targetASC->MakeOutgoingSpec(GameplayEffectClass, 1.f, effectContextHandle);
-	const auto activeEffectHandle = targetASC->ApplyGameplayEffectSpecToSelf(*effectSpecHandle.Data.Get());
+	// GameplayEffectSpec (GESpec) å¯ä»¥è®¤ä¸ºæ˜¯ GameplayEffects çš„å®žä¾‹åŒ–
+	// UAbilitySystemComponent::MakeOutgoingSpec() ä¸“é—¨ç”¨äºŽä»Ž GameplayEffects åˆ›å»º GameplayEffectSpecs
+	// åœ¨åº”ç”¨ä¸€ä¸ªGameplayEffectæ—¶, ä¼šå…ˆä»ŽGameplayEffectä¸­åˆ›å»ºä¸€ä¸ªGameplayEffectSpecå‡ºæ¥, ç„¶åŽå®žé™…ä¸Šæ˜¯æŠŠGameplayEffectSpecåº”ç”¨ç»™ç›®æ ‡
+	const auto effectSpecHandle = targetASC->MakeOutgoingSpec(GameplayEffectClass, ActorLevel, effectContextHandle);
+	const auto activeEffectHandle = targetASC->ApplyGameplayEffectSpecToSelf(*effectSpecHandle.Data);
 
-	const bool bIsInfinite = effectSpecHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite;
-	if (bIsInfinite && InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap) {
+	if (effectSpecHandle.Data->Def->DurationPolicy == EGameplayEffectDurationType::Infinite &&
+		InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap) {
 		ActiveEffectHandles.Add(activeEffectHandle, targetASC);
 	}
 }

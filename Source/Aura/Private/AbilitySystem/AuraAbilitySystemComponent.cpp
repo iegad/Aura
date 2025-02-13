@@ -1,6 +1,5 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 
-
 void
 UAuraAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -10,7 +9,7 @@ UAuraAbilitySystemComponent::AbilityActorInfoSet()
 void
 UAuraAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
-	FGameplayTagContainer tagContainer;
+	FGameplayTagContainer tagContainer;                                                                                                                                                                                                                                                                                                                                                                                         
 	EffectSpec.GetAllAssetTags(tagContainer);
 	EffectAssetTags.Broadcast(tagContainer);
 }

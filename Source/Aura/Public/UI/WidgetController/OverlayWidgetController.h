@@ -7,14 +7,10 @@
 #include "OverlayWidgetController.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignatrue, float, NewHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignatrue, float, NewMaxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignatrue, float, NewMana);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignatrue, float, NewMaxMana);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignatrue, float, NewValue);
 
 USTRUCT(BlueprintType)
-struct FUIWidgetRow : public FTableRowBase 
+struct FUIWidgetRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -28,9 +24,10 @@ struct FUIWidgetRow : public FTableRowBase
 	TSubclassOf<UAuraUserWidget> MessageWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UTexture2D* Image = nullptr;
+	UTexture2D* Image{ nullptr };
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
 
 /**
  * 
@@ -48,26 +45,30 @@ public:
 	virtual void BindCallbacksToDependencies() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnHealthChangedSignatrue OnHealthChanged;
+	FOnAttributeChangedSignatrue OnHealthChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnMaxHealthChangedSignatrue OnMaxHealthChanged;
+	FOnAttributeChangedSignatrue OnMaxHealthChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnManaChangedSignatrue OnManaChanged;
+	FOnAttributeChangedSignatrue OnManaChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnMaxManaChangedSignatrue OnMaxManaChanged;
+	FOnAttributeChangedSignatrue OnMaxManaChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Message")
+	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
-	void HealthChanged(const struct FOnAttributeChangeData& Data) const;
-
-	void MaxHealthChanged(const struct FOnAttributeChangeData& Data) const;
-
-	void ManaChanged(const struct FOnAttributeChangeData& Data) const;
-
-	void MaxManaChanged(const struct FOnAttributeChangeData& Data) const;
+	template<typename T>
+	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
 };
+
+template<typename T> T* 
+UOverlayWidgetController::GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag)
+{
+	return DataTable->FindRow<T>(Tag.GetTagName(), TEXT(""));
+}

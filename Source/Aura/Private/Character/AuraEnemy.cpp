@@ -43,6 +43,5 @@ AAuraEnemy::InitAbilityActorInfo()
 {
 	check(AbilitySystemComponent);
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	auto* auraAbilitySystemComp = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent);
-	auraAbilitySystemComp->AbilityActorInfoSet();
+	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 }

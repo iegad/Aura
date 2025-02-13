@@ -9,8 +9,7 @@ AAuraPlayerState::AAuraPlayerState()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>(TEXT("AttributeSet"));
-
-	NetUpdateFrequency = 100.f;
+	SetNetUpdateFrequency(100.f);	// 设置复制频率
 }
 
 UAbilitySystemComponent* 

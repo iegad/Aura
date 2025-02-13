@@ -7,7 +7,7 @@
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
-	InitHealth(50.f);
+	InitHealth(10.f);
 	InitMaxHealth(100.f);
 	InitMana(5.f);
 	InitMaxMana(50.f);
@@ -18,10 +18,10 @@ UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& O
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// DOREPLIFETIME_CONDITION_NOTIFY: ºêÖ÷ÒªÓÃÓÚ´øÓĞÍ¨ÖªµÄÊôĞÔÍ¬²½
-	// DOREPLIFETIME_CONDITION: ºêÖ÷ÒªÓÃÓÚ²»´øÍ¨ÖªµÄÊôĞÔÍ¬²½
+	// DOREPLIFETIME_CONDITION_NOTIFY: å®ä¸»è¦ç”¨äºå¸¦æœ‰é€šçŸ¥çš„å±æ€§åŒæ­¥
+	// DOREPLIFETIME_CONDITION: å®ä¸»è¦ç”¨äºä¸å¸¦é€šçŸ¥çš„å±æ€§åŒæ­¥
 
-	// COND_None Ã»ÓĞÌõ¼ş, Ö»ÒªÊôĞÔÖµ¸Ä±ä¾Í»á±»Í¬²½
+	// COND_None æ²¡æœ‰æ¡ä»¶, åªè¦å±æ€§å€¼æ”¹å˜å°±ä¼šè¢«åŒæ­¥
 	// REPNOTIFY_Always: 
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Health, COND_None, REPNOTIFY_Always);
@@ -32,9 +32,8 @@ UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& O
 
 void
 UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
-{
-	// ¶ÔÊôĞÔÖµµÄÓĞĞ§ĞÔ¼ì²éĞèÒªÔÚ PreAttributeChange (ÊôĞÔ¸Ä±äÖ®Ç°´¦Àí)
-	Super::PreAttributeChange(Attribute, NewValue);
+{// å¯¹å±æ€§å€¼çš„æœ‰æ•ˆæ€§æ£€æŸ¥éœ€è¦åœ¨ PreAttributeChange (å±æ€§æ”¹å˜ä¹‹å‰å¤„ç†)
+	//Super::PreAttributeChange(Attribute, NewValue);
 
 	if (Attribute == GetHealthAttribute()) {
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
@@ -43,12 +42,11 @@ UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float
 	}
 }
 
-// PostGameplayEffectExecute ÊôĞÔ±ä»¯ºó
-// ÀıÈç, ÎÒÃÇÒªÇóÊÕÊÜµ½ÉËº¦ºó×îÖÕÑªÁ¿, ÉúÃüÖµµÄAttribute - Êµ¼ÊÉËº¦Attribute, Èç¹ûÓĞ»¤¶ÜµÄAttributeµÄ»°, ÎÒÃÇ¿ÉÒÔÔÚÕâÀïÏÈÈÃ »¤¶ÜAttribute - Êµ¼Ê¶ÔÎÒµÄÉËº¦Attribute
 void
 UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
-{
-	Super::PostGameplayEffectExecute(Data);
+{// PostGameplayEffectExecute å±æ€§å˜åŒ–å
+ // ä¾‹å¦‚, æˆ‘ä»¬è¦æ±‚æ”¶å—åˆ°ä¼¤å®³åæœ€ç»ˆè¡€é‡, ç”Ÿå‘½å€¼çš„Attribute - å®é™…ä¼¤å®³Attribute, å¦‚æœæœ‰æŠ¤ç›¾çš„Attributeçš„è¯, æˆ‘ä»¬å¯ä»¥åœ¨è¿™é‡Œå…ˆè®© æŠ¤ç›¾Attribute - å®é™…å¯¹æˆ‘çš„ä¼¤å®³Attribute
+	//Super::PostGameplayEffectExecute(Data);
 
 	FEffectProperties props;
 	SetEffectProperties(Data, props);
