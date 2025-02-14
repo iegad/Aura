@@ -25,7 +25,7 @@ public:
 	FORCEINLINE UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 protected:
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(BlueprintReadOnly)

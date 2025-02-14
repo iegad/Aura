@@ -24,17 +24,22 @@ UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& O
 	// COND_None 没有条件, 只要属性值改变就会被同步
 	// REPNOTIFY_Always: 
 
+	// 基础属性
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Mana, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+
+	// 主要属性
+	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Strength, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Intelligence, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Resilience, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UAuraAttributeSet, Vigor, COND_None, REPNOTIFY_Always);
 }
 
 void
 UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {// 对属性值的有效性检查需要在 PreAttributeChange (属性改变之前处理)
-	//Super::PreAttributeChange(Attribute, NewValue);
-
 	if (Attribute == GetHealthAttribute()) {
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
 	} else if (Attribute == GetManaAttribute()) {
@@ -43,15 +48,47 @@ UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float
 }
 
 void
+UAuraAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
+{
+	if (Attribute == GetHealthAttribute()) {
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+	}
+	else if (Attribute == GetManaAttribute()) {
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
+	}
+}
+
+void
 UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {// PostGameplayEffectExecute 属性变化后
  // 例如, 我们要求收受到伤害后最终血量, 生命值的Attribute - 实际伤害Attribute, 如果有护盾的Attribute的话, 我们可以在这里先让 护盾Attribute - 实际对我的伤害Attribute
-	//Super::PostGameplayEffectExecute(Data);
 
 	FEffectProperties props;
 	SetEffectProperties(Data, props);
+}
 
+void
+UAuraAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldStrength) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Strength, OldStrength);
+}
 
+void
+UAuraAttributeSet::OnRep_Intelligence(const FGameplayAttributeData& OldIntelligence) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Intelligence, OldIntelligence);
+}
+
+void
+UAuraAttributeSet::OnRep_Resilience(const FGameplayAttributeData& OldResilience) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Resilience, OldResilience);
+}
+
+void
+UAuraAttributeSet::OnRep_Vigor(const FGameplayAttributeData& OldVigor) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet, Vigor, OldVigor);
 }
 
 void 
