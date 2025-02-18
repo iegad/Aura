@@ -48,6 +48,14 @@ AAuraCharacter::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("Call in BeginPlay"));
 }
 
+int32
+AAuraCharacter::GetPlayerLevel()
+{
+	const auto* auraPlayerState = GetPlayerState<AAuraPlayerState>();
+	check(auraPlayerState);
+	return auraPlayerState->GetPlayerLevel();
+}
+
 void 
 AAuraCharacter::InitAbilityActorInfo()
 {
@@ -61,7 +69,7 @@ AAuraCharacter::InitAbilityActorInfo()
 	AbilitySystemComponent = auraAbilitySystemComp;
 	AttributeSet = auraPlayerState->GetAttributeSet();
 
-	InitializePrimaryAttributes();
+	InitializeDefaultAttributes();
 
 	auto* auraPlayerController = Cast<AAuraPlayerController>(GetController());
 	if (!auraPlayerController) {
