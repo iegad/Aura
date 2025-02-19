@@ -20,5 +20,6 @@ public:
 	virtual float CalculateBaseMagnitude_Implementation(const FGameplayEffectSpec& Spec) const override;
 
 private:
+	// 定义捕获数据的结构体
 	FGameplayEffectAttributeCaptureDefinition IntelligenceDef;
 };
